@@ -1,0 +1,65 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.example
+    environment:
+      MONGO_URI: mongodb://mongo:27017/aitask
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-secret-change-me
+      NODE_ENV: development
+      PORT: 4000
+    depends_on:
+      - mongo
+      - redis
+    ports:
+      - "4000:4000"
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./worker/.env.example
+    environment:
+      MONGO_URI: mongodb://mongo:27017/aitask
+      REDIS_URL: redis://redis:6379/0
+      REDIS_STREAM_KEY: ai_tasks
+      REDIS_GROUP: ai_task_workers
+      WORKER_NAME: worker-1
+    depends_on:
+      - mongo
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:4000
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data: {}
