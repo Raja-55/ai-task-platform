@@ -25,7 +25,7 @@ const taskSchema = new mongoose.Schema(
       required: true,
       enum: ["pending", "running", "success", "failed"],
       index: true,
-      default: "pending",
+      default: "pending", // by default we set the panding
     },
     result: { type: mongoose.Schema.Types.Mixed, default: null },
     logs: { type: [taskLogSchema], default: [] },

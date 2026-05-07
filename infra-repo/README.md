@@ -1,4 +1,4 @@
-# AI Task Platform – Infrastructure Repo
+# AI Task Platform – Infrastructure Repository
 
 This repo contains Kubernetes manifests (Kustomize) for deploying the AI Task Platform via Argo CD (GitOps).
 
