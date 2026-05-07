@@ -7,6 +7,10 @@ const connectMongo = async (mongoUri) => {
       serverSelectionTimeoutMS: 5_000,
       connectTimeoutMS: 5_000,
     });
+    const { host, port, name, readyState } = mongoose.connection;
+    console.log(
+      `mongo connected (readyState=${readyState}) host=${host ?? "?"}:${port ?? "?"} db=${name ?? "?"}`
+    );
   } catch (err) {
     const hint =
       mongoUri.includes("mongo:27017") || mongoUri.includes("redis:6379")
@@ -29,4 +33,14 @@ const connectMongo = async (mongoUri) => {
   }
 };
 
-module.exports = { connectMongo };
+const getMongoStatus = () => {
+  const { host, port, name, readyState } = mongoose.connection ?? {};
+  return {
+    readyState: typeof readyState === "number" ? readyState : 0,
+    host: host ?? null,
+    port: typeof port === "number" ? port : null,
+    db: name ?? null,
+  };
+};
+
+module.exports = { connectMongo, getMongoStatus };

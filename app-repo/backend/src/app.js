@@ -4,6 +4,7 @@ const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 
 const { env } = require("./config/env");
+const { getMongoStatus } = require("./config/mongo");
 const { authRouter } = require("./routes/auth");
 const { tasksRouter } = require("./routes/tasks");
 const { authMiddleware } = require("./middleware/auth");
@@ -53,7 +54,10 @@ const createApp = ({ redis }) => {
   app.get("/readyz", async (req, res) => {
     try {
       await redis.ping();
-      return res.json({ ok: true });
+      const mongo = getMongoStatus();
+      const mongoOk = mongo.readyState === 1;
+      if (!mongoOk) return res.status(503).json({ ok: false, mongo });
+      return res.json({ ok: true, mongo });
     } catch {
       return res.status(503).json({ ok: false });
     }

@@ -34,6 +34,7 @@ This repo contains the application code:
 
 - Frontend: `http://localhost:8080`
 - Backend health: `http://localhost:4000/healthz`
+- Backend readiness (includes Mongo DB name): `http://localhost:4000/readyz`
 
 Important: when using Docker Compose, do NOT also run `npm run dev` inside `backend/` or `frontend/` at the same time. Use the containers.
 
@@ -85,3 +86,8 @@ Secrets expected:
 
 - No secrets are committed; use Kubernetes Secrets or GitHub secrets.
 - Production should use managed MongoDB/Redis or HA setups (see architecture doc).
+
+## Troubleshooting (users not visible in MongoDB)
+
+- The backend writes users into the database specified in `MONGO_URI` (Compose uses `mongodb://mongo:27017/aitask`).
+- Check `http://localhost:4000/readyz` and confirm the reported `mongo.db` matches the database you are browsing in MongoDB Compass (for this stack it should be `aitask` and the collection is `users`).
